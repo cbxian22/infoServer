@@ -5,17 +5,17 @@ require("dotenv").config();
 const cors = require("cors");
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000; // 使用环境变量指定端口
 
-// 使用 cors 中间件，允许跨域请求
-// app.use(cors());
+// 使用 CORS 中间件，允许来自指定前端的跨域请求
 app.use(
   cors({
-    origin: ["https://info-vue.vercel.app/"], // 指定允许的前端域名
-    methods: ["POST"], // 限制允许的 HTTP 方法
+    origin: "https://info-vue.vercel.app", // 指定允许的前端域名，不带尾部斜杠
+    methods: ["GET", "POST"], // 允许的 HTTP 方法
+    allowedHeaders: ["Content-Type"], // 允许的请求头
+    credentials: true, // 如果需要支持凭据（如 Cookies）
   })
 );
-
 //
 // 使用 body-parser 解析请求体中的 JSON 数据
 app.use(bodyParser.json());
