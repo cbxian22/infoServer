@@ -8,8 +8,15 @@ const app = express();
 const port = 3000;
 
 // 使用 cors 中间件，允许跨域请求
-app.use(cors());
+// app.use(cors());
+app.use(
+  cors({
+    origin: ["https://info-vue.vercel.app/"], // 指定允许的前端域名
+    methods: ["POST"], // 限制允许的 HTTP 方法
+  })
+);
 
+//
 // 使用 body-parser 解析请求体中的 JSON 数据
 app.use(bodyParser.json());
 
