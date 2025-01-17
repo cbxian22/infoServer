@@ -1,6 +1,5 @@
 import express from "express";
 import { createTransport } from "nodemailer";
-import { json } from "body-parser";
 import { config } from "dotenv";
 import cors from "cors";
 config();
@@ -17,7 +16,7 @@ app.use(
   })
 );
 
-app.use(json());
+app.use(express.json());
 
 const transporter = createTransport({
   service: "gmail",
