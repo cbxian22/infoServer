@@ -1,65 +1,59 @@
-const express = require("express");
-const nodemailer = require("nodemailer");
-const bodyParser = require("body-parser");
-require("dotenv").config();
-const cors = require("cors");
+import express from "express";
+import { createTransport } from "nodemailer";
+import { json } from "body-parser";
+import { config } from "dotenv";
+import cors from "cors";
+config();
 
 const app = express();
-const port = process.env.PORT || 3000; // 使用环境变量指定端口
+const port = process.env.PORT || 3000;
 
-// 使用 CORS 中间件，允许来自指定前端的跨域请求
 app.use(
   cors({
-    origin: "https://info-vue.vercel.app", // 指定允许的前端域名，不带尾部斜杠
-    methods: ["GET", "POST"], // 允许的 HTTP 方法
-    allowedHeaders: ["Content-Type"], // 允许的请求头
-    credentials: true, // 如果需要支持凭据（如 Cookies）
+    origin: "https://info-vue.vercel.app",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"],
+    credentials: true,
   })
 );
-//
-// 使用 body-parser 解析请求体中的 JSON 数据
-app.use(bodyParser.json());
 
-// 创建 Nodemailer 邮件发送器
-const transporter = nodemailer.createTransport({
-  service: "gmail", // 这里使用 Gmail 服务
+app.use(json());
+
+const transporter = createTransport({
+  service: "gmail",
   auth: {
-    user: process.env.EMAIL_USER, // 从环境变量中读取邮箱地址
-    pass: process.env.EMAIL_PASS, // 从环境变量中读取邮箱密码
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
-// 定义接收表单数据的接口
 app.post("/api/submit", (req, res) => {
-  console.log(req.body); // 打印请求体内容
-  const { user, message } = req.body; // 获取表单数据
+  const { user, message } = req.body;
   const emailContent = `
-    姓名: ${user.name}
-    邮箱: ${user.email}
-    消息: ${user.message}
+    name: ${user.name}
+    email: ${user.email}
+    message: ${user.message}
   `;
-
-  // 配置邮件内容
   const mailOptions = {
-    from: process.env.EMAIL_USER, // 发件人地址
-    to: process.env.EMAIL_USER, // 收件人地址（可以是你的邮箱或其他）
-    subject: "表单提交数据", // 邮件主题
-    text: emailContent, // 邮件内容
+    from: process.env.EMAIL_USER,
+    to: process.env.EMAIL_USER,
+    subject: "You received a message from InfoWeb.",
+    text: emailContent,
   };
 
-  // 发送邮件
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.log(error);
-      res.status(500).send({ success: false, message: "邮件发送失败" });
+      res.status(500).send({ success: false, message: "Mail failed to send." });
     } else {
-      console.log("邮件发送成功: " + info.response);
-      res.status(200).send({ success: true, message: "邮件发送成功" });
+      console.log("Mail sent successfully: " + info.response);
+      res
+        .status(200)
+        .send({ success: true, message: "Mail sent successfully." });
     }
   });
 });
 
-// 启动服务器
 app.listen(port, () => {
-  console.log(`服务器正在监听 http://localhost:${port}`);
+  console.log(`伺服器正在 http://localhost:${port} 運行`);
 });
